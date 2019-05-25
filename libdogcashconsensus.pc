@@ -1,0 +1,11 @@
+prefix=/home/dong/DCH/depends/i686-w64-mingw32
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: DogCash Core consensus library
+Description: Library for the DogCash consensus protocol.
+Version: 1.5.0
+Libs: -L${libdir} -ldogcashconsensus
+Cflags: -I${includedir}
+Requires.private: libcrypto
