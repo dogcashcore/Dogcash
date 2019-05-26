@@ -1,0 +1,11 @@
+[Protocol]
+exec=dogcash-qt '%u'
+protocol=dogcash
+input=none
+output=none
+helper=true
+listing=
+reading=false
+writing=false
+makedir=false
+deleting=false

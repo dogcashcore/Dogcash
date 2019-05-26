@@ -1,0 +1,13 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=DogCash Core
+Comment=Connect to the DogCash P2P Network
+Comment[de]=Verbinde mit dem DogCash peer-to-peer Netzwerk
+Comment[fr]=DogCash, monnaie virtuelle cryptographique pair à pair
+Comment[tr]=DogCash, eşten eşe kriptografik sanal para birimi
+Exec=dogcash-qt %u
+Terminal=false
+Type=Application
+Icon=dogcash128
+MimeType=x-scheme-handler/dogcash;
+Categories=Office;Finance;
