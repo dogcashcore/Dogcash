@@ -1,0 +1,22 @@
+[Unit]
+Description=DogCash's distributed currency daemon
+After=network.target
+
+[Service]
+User=dogcash
+Group=dogcash
+
+Type=forking
+PIDFile=/var/lib/dogcashd/dogcashd.pid
+ExecStart=/usr/bin/dogcashd -daemon -pid=/var/lib/dogcashd/dogcashd.pid \
+-conf=/etc/dogcash/dogcash.conf -datadir=/var/lib/dogcashd -disablewallet
+
+Restart=always
+PrivateTmp=true
+TimeoutStopSec=60s
+TimeoutStartSec=2s
+StartLimitInterval=120s
+StartLimitBurst=5
+
+[Install]
+WantedBy=multi-user.target

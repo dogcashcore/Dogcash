@@ -1,0 +1,92 @@
+#!/sbin/runscript
+
+# backward compatibility for existing gentoo layout 
+#
+if [ -d "/var/lib/dogcash/.dogcash" ]; then
+	PRODUCTIONCHAIND_DEFAULT_DATADIR="/var/lib/dogcash/.dogcash"
+else
+	PRODUCTIONCHAIND_DEFAULT_DATADIR="/var/lib/dogcashd"
+fi
+
+PRODUCTIONCHAIND_CONFIGFILE=${PRODUCTIONCHAIND_CONFIGFILE:-/etc/dogcash/dogcash.conf}
+PRODUCTIONCHAIND_PIDDIR=${PRODUCTIONCHAIND_PIDDIR:-/var/run/dogcashd}
+PRODUCTIONCHAIND_PIDFILE=${PRODUCTIONCHAIND_PIDFILE:-${PRODUCTIONCHAIND_PIDDIR}/dogcashd.pid}
+PRODUCTIONCHAIND_DATADIR=${PRODUCTIONCHAIND_DATADIR:-${PRODUCTIONCHAIND_DEFAULT_DATADIR}}
+PRODUCTIONCHAIND_USER=${PRODUCTIONCHAIND_USER:-${PRODUCTIONCHAIN_USER:-dogcash}}
+PRODUCTIONCHAIND_GROUP=${PRODUCTIONCHAIND_GROUP:-dogcash}
+PRODUCTIONCHAIND_BIN=${PRODUCTIONCHAIND_BIN:-/usr/bin/dogcashd}
+PRODUCTIONCHAIND_NICE=${PRODUCTIONCHAIND_NICE:-${NICELEVEL:-0}}
+PRODUCTIONCHAIND_OPTS="${PRODUCTIONCHAIND_OPTS:-${PRODUCTIONCHAIN_OPTS}}"
+
+name="DogCash Core Daemon"
+description="DogCash cryptocurrency P2P network daemon"
+
+command="/usr/bin/dogcashd"
+command_args="-pid=\"${PRODUCTIONCHAIND_PIDFILE}\" \
+		-conf=\"${PRODUCTIONCHAIND_CONFIGFILE}\" \
+		-datadir=\"${PRODUCTIONCHAIND_DATADIR}\" \
+		-daemon \
+		${PRODUCTIONCHAIND_OPTS}"
+
+required_files="${PRODUCTIONCHAIND_CONFIGFILE}"
+start_stop_daemon_args="-u ${PRODUCTIONCHAIND_USER} \
+			-N ${PRODUCTIONCHAIND_NICE} -w 2000"
+pidfile="${PRODUCTIONCHAIND_PIDFILE}"
+
+# The retry schedule to use when stopping the daemon. Could be either
+# a timeout in seconds or multiple signal/timeout pairs (like
+# "SIGKILL/180 SIGTERM/300")
+retry="${PRODUCTIONCHAIND_SIGTERM_TIMEOUT}"
+
+depend() {
+	need localmount net
+}
+
+# verify
+# 1) that the datadir exists and is writable (or create it)
+# 2) that a directory for the pid exists and is writable
+# 3) ownership and permissions on the config file
+start_pre() {
+	checkpath \
+	-d \
+	--mode 0750 \
+	--owner "${PRODUCTIONCHAIND_USER}:${PRODUCTIONCHAIND_GROUP}" \
+	"${PRODUCTIONCHAIND_DATADIR}"
+
+	checkpath \
+	-d \
+	--mode 0755 \
+	--owner "${PRODUCTIONCHAIND_USER}:${PRODUCTIONCHAIND_GROUP}" \
+	"${PRODUCTIONCHAIND_PIDDIR}"
+
+	checkpath -f \
+	-o ${PRODUCTIONCHAIND_USER}:${PRODUCTIONCHAIND_GROUP} \
+	-m 0660 \
+	${PRODUCTIONCHAIND_CONFIGFILE}
+
+	checkconfig || return 1
+}
+
+checkconfig()
+{
+	if ! grep -qs '^rpcpassword=' "${PRODUCTIONCHAIND_CONFIGFILE}" ; then
+		eerror ""
+		eerror "ERROR: You must set a secure rpcpassword to run dogcashd."
+		eerror "The setting must appear in ${PRODUCTIONCHAIND_CONFIGFILE}"
+		eerror ""
+		eerror "This password is security critical to securing wallets "
+		eerror "and must not be the same as the rpcuser setting."
+		eerror "You can generate a suitable random password using the following "
+		eerror "command from the shell:"
+		eerror ""
+		eerror "bash -c 'tr -dc a-zA-Z0-9 < /dev/urandom | head -c32 && echo'"
+		eerror ""
+		eerror "It is recommended that you also set alertnotify so you are "
+		eerror "notified of problems:"
+		eerror ""
+		eerror "ie: alertnotify=echo %%s | mail -s \"DogCash Alert\"" \
+			"admin@foo.com"
+		eerror ""
+		return 1
+	fi
+}

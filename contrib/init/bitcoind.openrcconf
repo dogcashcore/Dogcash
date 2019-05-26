@@ -1,0 +1,33 @@
+# /etc/conf.d/dogcashd: config file for /etc/init.d/dogcashd
+
+# Config file location
+#PRODUCTIONCHAIND_CONFIGFILE="/etc/dogcash/dogcash.conf"
+
+# What directory to write pidfile to?  (created and owned by $PRODUCTIONCHAIND_USER)
+#PRODUCTIONCHAIND_PIDDIR="/var/run/dogcashd"
+
+# What filename to give the pidfile
+#PRODUCTIONCHAIND_PIDFILE="${PRODUCTIONCHAIND_PIDDIR}/dogcashd.pid"
+
+# Where to write dogcashd data (be mindful that the blockchain is large)
+#PRODUCTIONCHAIND_DATADIR="/var/lib/dogcashd"
+
+# User and group to own dogcashd process
+#PRODUCTIONCHAIND_USER="dogcash"
+#PRODUCTIONCHAIND_GROUP="dogcash"
+
+# Path to dogcashd executable
+#PRODUCTIONCHAIND_BIN="/usr/bin/dogcashd"
+
+# Nice value to run dogcashd under
+#PRODUCTIONCHAIND_NICE=0
+
+# Additional options (avoid -conf and -datadir, use flags above)
+#PRODUCTIONCHAIND_OPTS=""
+
+# The timeout in seconds OpenRC will wait for dogcashd to terminate
+# after a SIGTERM has been raised.
+# Note that this will be mapped as argument to start-stop-daemon's
+# '--retry' option, which means you can specify a retry schedule
+# here. For more information see man 8 start-stop-daemon.
+PRODUCTIONCHAIND_SIGTERM_TIMEOUT=60
